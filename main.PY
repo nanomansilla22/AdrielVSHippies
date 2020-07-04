@@ -26,6 +26,12 @@ class Character(pygame.sprite.Sprite):
         bullet = Bullet(shooter, vel, hurt, origin, pygame.image.load(os.path.join("assets", img)), angle, angle_pos)
         self.bulletList.append(bullet)
 
+    def bulletsMove(self):
+        for bullet in self.bulletList:
+            bullet.moveBullet()
+            if bullet.off_screen(WINDOW.get_width(), WINDOW.get_height()):
+                self.bulletList.remove(bullet)
+
 class Player(Character):
     def __init__(self, x, y, strong, vel):
         super().__init__(x, y, strong, vel)
@@ -71,8 +77,8 @@ class Player(Character):
         if keys[pygame.K_d]:
             self.movePlayer("right")
 
+        self.bulletsMove()
         img = pygame.transform.rotate(self.sheet, - (self.angle + 90))
-
         self.offsetcenter = (img.get_width()/2 , img.get_height()/2)
         WINDOW.blit(img, (self.p_x - self.offsetcenter[0], self.p_y - self.offsetcenter[0]))
 
@@ -100,11 +106,7 @@ class Bullet(pygame.sprite.Sprite):
     def off_screen(self, width, height):
         return (not(self.b_x <= width and self.b_x >= 0) or not(self.b_y <= height and self.b_y >= 0))
 
-def bulletsMove():
-    for bullet in player_one.bulletList:
-        bullet.moveBullet()
-        if bullet.off_screen(WINDOW.get_width(), WINDOW.get_height()):
-            player_one.bulletList.remove(bullet)
+
 
 cursor = pygame.image.load(os.path.join("assets","gunsight.png"))
 pygame.mouse.set_visible(False)
@@ -113,7 +115,6 @@ while gameover == False:
     WINDOW.blit(BG,(0,0))
     player_one.event(pygame.key.get_pressed())
     WINDOW.blit(cursor, (pygame.mouse.get_pos()[0]-16,pygame.mouse.get_pos()[1]-16))
-    bulletsMove()
     pygame.display.update()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
