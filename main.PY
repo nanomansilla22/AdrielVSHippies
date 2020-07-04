@@ -27,7 +27,6 @@ class Character(pygame.sprite.Sprite):
         self.bulletList.append(bullet)
 
 class Player(Character):
-
     def __init__(self, x, y, strong, vel):
         super().__init__(x, y, strong, vel)
         self.sheet = pygame.image.load(os.path.join("assets", "player.png"))
@@ -61,6 +60,7 @@ class Player(Character):
             if event.type == pygame.MOUSEMOTION:
                 self.anglePlayer(pygame.mouse.get_pos())
             if event.type == pygame.MOUSEBUTTONDOWN:
+                self.anglePlayer(pygame.mouse.get_pos())
                 self.shoot(self, 8, 10, 33, "bullet1.png", self.angle, 15)
         if keys[pygame.K_w]:
             self.movePlayer("foward")
@@ -91,13 +91,6 @@ class Bullet(pygame.sprite.Sprite):
         self.b_x += math.cos(math.radians(self.angle_origin))*self.origin
         self.b_y += math.sin(math.radians(self.angle_origin))*self.origin
 
-
-
-
-
-
-
-
     def moveBullet(self):
         self.b_x += math.cos(math.radians(self.angle))*self.vel
         self.b_y += math.sin(math.radians(self.angle))*self.vel
@@ -112,8 +105,6 @@ def bulletsMove():
         bullet.moveBullet()
         if bullet.off_screen(WINDOW.get_width(), WINDOW.get_height()):
             player_one.bulletList.remove(bullet)
-
-
 
 cursor = pygame.image.load(os.path.join("assets","gunsight.png"))
 pygame.mouse.set_visible(False)
