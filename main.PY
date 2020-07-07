@@ -34,10 +34,11 @@ class Character(pygame.sprite.Sprite):
             self.angle = math.degrees(math.acos(ady/hip))
         elif op <= 0:
             self.angle = 360 - math.degrees(math.acos(ady/hip))
+            #POSIUBLE DIVISION POR CERO
         self.cont = 0
-
-        self.x += math.cos(math.radians(self.angle))*self.vel
-        self.y += math.sin(math.radians(self.angle))*self.vel
+        if not hip <= 30:
+            self.x += math.cos(math.radians(self.angle))*self.vel
+            self.y += math.sin(math.radians(self.angle))*self.vel
 
     def update(self):
         img = pygame.transform.rotate(self.sheet, - (self.angle + 90))
@@ -50,7 +51,8 @@ class Character(pygame.sprite.Sprite):
 
     def bulletsMove(self, objs):
         for bullet in self.bulletList:
-            if bullet.moveBullet(objs):
+            bullet.moveBullet(objs)
+            if bullet.delete:
                 self.bulletList.remove(bullet)
             if bullet.off_screen(WINDOW.get_width(), WINDOW.get_height()):
                 self.bulletList.remove(bullet)
@@ -66,11 +68,11 @@ class Player(Character):
         self.m_x, self.m_y = mousepos
         ady = self.m_x - (self.x)
         op = self.m_y - (self.y)
-        hip = math.sqrt(op*op + ady*ady)
+        self.hip = math.sqrt(op*op + ady*ady)
         if op > 0:
-            self.angle = math.degrees(math.acos(ady/hip))
+            self.angle = math.degrees(math.acos(ady/self.hip))
         elif op <= 0:
-            self.angle = 360 - math.degrees(math.acos(ady/hip))
+            self.angle = 360 - math.degrees(math.acos(ady/self.hip))
 
     def movePlayer(self, direction):
         if direction == "foward":
@@ -81,6 +83,7 @@ class Player(Character):
             angle = math.radians(self.angle - 90)
         if direction == "right":
             angle = math.radians(self.angle + 90)
+
         self.x += math.cos(angle)*self.vel
         self.y += math.sin(angle)*self.vel
 
@@ -120,6 +123,7 @@ class Bullet(pygame.sprite.Sprite):
         self.angle_pos = angle_pos
         self.angle = angle
         self.sheet = sheet
+        self.delete = False
         self.mask = pygame.mask.from_surface(self.sheet)
         self.angle_origin = self.angle - self.angle_pos
         self.x = shooter.x
@@ -135,10 +139,9 @@ class Bullet(pygame.sprite.Sprite):
             if self.collision(obj):
                 obj.health -= self.hurt
                 print(obj.health)
-                deletebullet = True
-            else:
-                deletebullet = False
-            return deletebullet
+                self.delete = True
+
+
 
     def off_screen(self, width, height):
         return (not(self.x <= width and self.x >= 0) or not(self.y <= height and self.y >= 0))
@@ -156,8 +159,14 @@ cursor = pygame.image.load(os.path.join("assets","gunsight.png"))
 pygame.mouse.set_visible(False)
 player_one = Player(300, 400, 100, 7)
 enemiesList = []
-hippie = Hippies(600,400)
+hippie = Hippies(100,400)
 enemiesList.append(hippie)
+hippie1 = Hippies(300,500)
+enemiesList.append(hippie1)
+hippie2 = Hippies(600,100)
+enemiesList.append(hippie2)
+hippie3 = Hippies(300,10)
+enemiesList.append(hippie3)
 
 while gameover == False:
     clock.tick(FPS)
@@ -167,7 +176,7 @@ while gameover == False:
         if enemy.health <= 0:
             enemiesList.remove(enemy)
         else:
-            #enemy.moveCharacter(player_one.x, player_one.y)
+            enemy.moveCharacter(player_one.x, player_one.y)
             enemy.update()
 
             if collide(enemy, player_one):
